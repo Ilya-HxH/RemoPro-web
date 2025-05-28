@@ -241,7 +241,7 @@
 // export default App;
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import LoginScreen from './screens/common/LoginScreen';
 import RegisterClientScreen from './screens/common/RegisterClientScreen';
@@ -300,12 +300,28 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+// Компонент для условного отображения Layout
+const ConditionalLayout = ({ children }) => {
+  const location = useLocation();
+  
+  // Пути, на которых НЕ нужно показывать Layout (хедер)
+  const noLayoutPaths = ['/login', '/register', '/register/client', '/register/contractor'];
+  
+  const shouldShowLayout = !noLayoutPaths.includes(location.pathname);
+  
+  if (shouldShowLayout) {
+    return <Layout>{children}</Layout>;
+  }
+  
+  return children;
+};
+
 function App() {
   return (
     <Router>
-      <Layout>
+      <ConditionalLayout>
         <Routes>
-          {/* Public routes - теперь доступны всегда */}
+          {/* Public routes - БЕЗ Layout */}
           <Route 
             path="/login" 
             element={
@@ -339,7 +355,7 @@ function App() {
             } 
           />
 
-          {/* Client routes - теперь доступны без проверки роли */}
+          {/* Client routes - С Layout */}
           <Route 
             path="/home" 
             element={
@@ -405,7 +421,7 @@ function App() {
             } 
           />
 
-          {/* Project creation routes */}
+          {/* Project creation routes - С Layout */}
           <Route 
             path="/project/create/step1" 
             element={
@@ -431,7 +447,7 @@ function App() {
             } 
           />
 
-          {/* Contractor routes - теперь доступны без проверки роли */}
+          {/* Contractor routes - С Layout */}
           <Route 
             path="/contractor/home" 
             element={
@@ -520,7 +536,7 @@ function App() {
             } 
           />
         </Routes>
-      </Layout>
+      </ConditionalLayout>
     </Router>
   );
 }

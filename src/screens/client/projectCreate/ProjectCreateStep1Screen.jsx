@@ -104,7 +104,7 @@ const CreateProjectStep1Screen = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <ClientHeader showBackButton />
+      
 
       <div className="px-4 pt-6 pb-24 space-y-6">
         <h1 className="text-2xl font-bold">Новый проект</h1>
