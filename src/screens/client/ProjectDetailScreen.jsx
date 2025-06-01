@@ -1,242 +1,6 @@
-// import React, { useEffect, useState } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
-// import { Eye, MessageCircle, Send, ChevronLeft, ChevronRight } from 'lucide-react';
-// import { useAuthStore } from '../../store/authStore';
-// import { BACKEND_URL } from '../../utils/config';
-
-// const ProjectDetailScreen = () => {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const token = useAuthStore(state => state.token);
-  
-//   const [project, setProject] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [activeImageIndex, setActiveImageIndex] = useState(0);
-//   const [activeSection, setActiveSection] = useState(null);
-//   const [showContractors, setShowContractors] = useState({});
-
-//   useEffect(() => {
-//     const fetchProject = async () => {
-//       try {
-//         const response = await fetch(`${BACKEND_URL}/api/project/${id}`);
-//         const data = await response.json();
-//         setProject(data);
-//       } catch (error) {
-//         console.error('Ошибка загрузки проекта:', error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProject();
-//   }, [id]);
-
-//   const handleCategoryClick = (categoryId) => {
-//     setActiveSection(activeSection === categoryId ? null : categoryId);
-//     if (!showContractors[categoryId]) {
-//       // Здесь можно загрузить подрядчиков для конкретной категории
-//       setShowContractors(prev => ({ ...prev, [categoryId]: true }));
-//     }
-//   };
-
-//   const sendRequest = async (contractorId, categoryId) => {
-//     try {
-//       const response = await fetch(`${BACKEND_URL}/api/project-contractor/invite`, {
-//         method: 'POST',
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           projectId: categoryId,
-//           contractorId: contractorId,
-//         }),
-//       });
-
-//       if (response.ok) {
-//         alert('Заявка успешно отправлена!');
-//       } else {
-//         alert('Ошибка при отправке заявки');
-//       }
-//     } catch (error) {
-//       console.error('Ошибка отправки заявки:', error);
-//       alert('Ошибка сети при отправке заявки');
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="flex justify-center items-center min-h-64">
-//         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-//       </div>
-//     );
-//   }
-
-//   if (!project) {
-//     return (
-//       <div className="text-center py-12">
-//         <p className="text-gray-500">Проект не найден</p>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="max-w-4xl mx-auto space-y-8">
-//       {/* Project Header */}
-//       <div className="bg-white rounded-xl border border-gray-200 p-6">
-//         <div className="mb-4">
-//           <h3 className="text-sm text-gray-500 mb-1">Суть работы:</h3>
-//           <h1 className="text-xl font-semibold text-black mb-4">{project.title}</h1>
-//           <p className="text-gray-700 leading-relaxed">{project.description}</p>
-//         </div>
-
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//           {/* Current Object Photos */}
-//           <div>
-//             <h3 className="text-sm text-gray-500 mb-3">Объект ремонта сейчас</h3>
-//             <div className="relative">
-//               {project.sourceImg && project.sourceImg.length > 0 && (
-//                 <>
-//                   <img
-//                     src={`${BACKEND_URL}${project.sourceImg[activeImageIndex]}`}
-//                     alt="Текущее состояние"
-//                     className="w-full h-64 object-cover rounded-lg"
-//                   />
-//                   <div className="flex space-x-2 mt-2">
-//                     {project.sourceImg.map((img, index) => (
-//                       <button
-//                         key={index}
-//                         onClick={() => setActiveImageIndex(index)}
-//                         className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-//                           activeImageIndex === index ? 'border-yellow-400' : 'border-gray-200'
-//                         }`}
-//                       >
-//                         <img
-//                           src={`${BACKEND_URL}${img}`}
-//                           alt={`Фото ${index + 1}`}
-//                           className="w-full h-full object-cover"
-//                         />
-//                       </button>
-//                     ))}
-//                   </div>
-//                 </>
-//               )}
-//             </div>
-//           </div>
-
-//           {/* Categories and Tools */}
-//           <div>
-//             <h3 className="text-sm text-gray-500 mb-3">Категории работ</h3>
-//             <div className="space-y-3">
-//               {project.tags?.map((tag) => (
-//                 <div key={tag.id} className="bg-gray-50 rounded-lg p-3">
-//                   <div className="flex items-center space-x-2 mb-2">
-//                     <span className="font-medium text-black">{tag.category?.action}</span>
-//                   </div>
-//                   <div className="flex flex-wrap gap-1 mb-2">
-//                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">Демонтаж</span>
-//                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">Отделка</span>
-//                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">Дизайн интерьера</span>
-//                   </div>
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Materials/Tools Section */}
-//             <div className="mt-6">
-//               <h4 className="text-sm text-gray-500 mb-2">Товары:</h4>
-//               <div className="space-y-2">
-//                 <div className="text-sm text-gray-600">Плинтуса</div>
-//                 <div className="text-sm text-gray-600">Шпаклёвка</div>
-//                 <div className="text-sm text-gray-600">Штукатурка</div>
-//                 <div className="text-sm text-gray-600">Линолеум</div>
-//                 <p className="text-xs text-gray-400">Выбрано позиций: 7</p>
-//               </div>
-
-//               <div className="mt-4">
-//                 <div className="text-sm text-gray-600 space-y-1">
-//                   <div>Диван</div>
-//                   <div>Кресло</div>
-//                   <div>Стол</div>
-//                   <div>Комод</div>
-//                 </div>
-//                 <p className="text-xs text-gray-400 mt-1">Выбрано позиций: 7</p>
-//               </div>
-
-//               <div className="mt-4">
-//                 <h5 className="text-sm text-gray-500 mb-2">Исполнители:</h5>
-//                 <div className="space-y-2">
-//                   <div className="text-sm text-gray-600">Отделка</div>
-//                   <div className="text-sm text-gray-600">Дизайн</div>
-//                   <div className="text-sm text-gray-600">Сборка мебели</div>
-//                   <div className="text-sm text-gray-600">Покраска</div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Reference Photos */}
-//         <div className="mt-8">
-//           <h3 className="text-sm text-gray-500 mb-3">Примеры желаемого объекта</h3>
-//           <div className="relative">
-//             {project.refImg && project.refImg.length > 0 && (
-//               <>
-//                 <img
-//                   src={`${BACKEND_URL}${project.refImg[0]}`}
-//                   alt="Желаемый результат"
-//                   className="w-full h-64 object-cover rounded-lg"
-//                 />
-//                 <div className="flex space-x-2 mt-2">
-//                   {project.refImg.map((img, index) => (
-//                     <div key={index} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-//                       <img
-//                         src={`${BACKEND_URL}${img}`}
-//                         alt={`Референс ${index + 1}`}
-//                         className="w-full h-full object-cover"
-//                       />
-//                     </div>
-//                   ))}
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* Project Description */}
-//         <div className="mt-8">
-//           <h3 className="text-sm text-gray-500 mb-2">Описание работы</h3>
-//           <p className="text-gray-700 leading-relaxed">
-//             {project.description}
-//           </p>
-//         </div>
-
-//         {/* Project Stats */}
-//         <div className="flex items-center space-x-6 mt-6 pt-4 border-t border-gray-200">
-//           <div className="flex items-center space-x-1 text-gray-600">
-//             <Eye className="w-4 h-4" />
-//             <span className="text-sm">{project.views || 0}</span>
-//           </div>
-//           <div className="flex items-center space-x-1 text-gray-600">
-//             <MessageCircle className="w-4 h-4" />
-//             <span className="text-sm">{project.comments || 0}</span>
-//           </div>
-//           <div className="ml-auto">
-//             <button className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2">
-//               <Send className="w-4 h-4" />
-//               <span>Принять заявку</span>
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProjectDetailScreen;
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Eye, MessageCircle, Send, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, MessageCircle, Send, X, Search, User, Clock, CheckCircle, Star } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { BACKEND_URL } from '../../utils/config';
 
@@ -248,8 +12,13 @@ const ProjectDetailScreen = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [activeSection, setActiveSection] = useState(null);
-  const [showContractors, setShowContractors] = useState({});
+  const [activeTag, setActiveTag] = useState(null);
+  const [tab, setTab] = useState("description");
+  const [contractors, setContractors] = useState([]);
+  const [contractorLoading, setContractorLoading] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   // Mock data
   const mockProject = {
@@ -268,43 +37,104 @@ const ProjectDetailScreen = () => {
     tags: [
       {
         id: 1,
-        category: { id: 1, action: "Демонтаж" }
+        projectTagId: 1,
+        category: { id: 1, action: "Демонтаж" },
+        category_description: "Демонтаж старой плитки, сантехники и электропроводки. Аккуратный снос с вывозом мусора.",
+        materials: ["Перфоратор", "Болгарка", "Мешки для мусора", "Защитные средства"],
+        hasContractor: false
       },
       {
         id: 2,
-        category: { id: 2, action: "Отделка" }
+        projectTagId: 2,
+        category: { id: 2, action: "Отделка" },
+        category_description: "Выравнивание стен, покраска, поклейка обоев. Качественная финишная отделка.",
+        materials: ["Шпаклевка", "Грунтовка", "Краска", "Обои"],
+        hasContractor: true,
+        contractor: {
+          id: 1,
+          accountName: "СтройМастер",
+          profileImg: "/api/placeholder/112/112",
+          fullDescription: "Профессиональная команда с опытом работы более 10 лет",
+          phone: "+7 (777) 123-45-67"
+        }
       },
       {
         id: 3,
-        category: { id: 3, action: "Сантехника" }
-      },
-      {
-        id: 4,
-        category: { id: 4, action: "Электрика" }
+        projectTagId: 3,
+        category: { id: 3, action: "Сантехника" },
+        category_description: "Установка раковины, смесителя, подключение воды и канализации.",
+        materials: ["Трубы", "Фитинги", "Смеситель", "Раковина"],
+        hasContractor: false
       }
     ],
     views: 127,
     comments: 8
   };
 
-  useEffect(() => {
-    // ОТКЛЮЧЕНО ДЛЯ ТЕСТИРОВАНИЯ - закомментированный код ниже
-    /*
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/project/${id}`);
-        const data = await response.json();
-        setProject(data);
-      } catch (error) {
-        console.error('Ошибка загрузки проекта:', error);
-      } finally {
-        setLoading(false);
+  const mockContractors = [
+    {
+      id: 1,
+      account_name: "RemontBistro",
+      fullName: "RemontBistro - Мастера ремонта",
+      shortDescription: "Качественный ремонт по доступным ценам",
+      previewImage: "/api/placeholder/200/150",
+      rating: 4.8,
+      reviewCount: 52
+    },
+    {
+      id: 2,
+      account_name: "СтройПрофи",
+      fullName: "СтройПрофи - Профессиональное строительство", 
+      shortDescription: "Комплексные ремонтные работы любой сложности",
+      previewImage: "/api/placeholder/200/150",
+      rating: 4.9,
+      reviewCount: 38
+    },
+    {
+      id: 3,
+      account_name: "МастерДом",
+      fullName: "МастерДом - Ваш надежный помощник",
+      shortDescription: "Индивидуальный подход к каждому клиенту",
+      previewImage: "/api/placeholder/200/150",
+      rating: 4.7,
+      reviewCount: 29
+    }
+  ];
+
+  const mockRequests = [
+    {
+      id: 1,
+      status: "WAITING_USER",
+      contractor: {
+        id: 1,
+        userId: { accountName: "RemontBistro" },
+        shortDescription: "Качественный ремонт по доступным ценам",
+        profileImg: "/api/placeholder/80/80"
       }
-    };
+    },
+    {
+      id: 2,
+      status: "PENDING",
+      contractor: {
+        id: 2,
+        userId: { accountName: "СтройПрофи" },
+        shortDescription: "Комплексные ремонтные работы",
+        profileImg: "/api/placeholder/80/80"
+      }
+    },
+    {
+      id: 3,
+      status: "APPROVED",
+      contractor: {
+        id: 3,
+        userId: { accountName: "МастерДом" },
+        shortDescription: "Индивидуальный подход",
+        profileImg: "/api/placeholder/80/80"
+      }
+    }
+  ];
 
-    fetchProject();
-    */
-
+  useEffect(() => {
     // ВРЕМЕННАЯ ЛОГИКА ДЛЯ ТЕСТИРОВАНИЯ
     setTimeout(() => {
       setProject(mockProject);
@@ -312,58 +142,67 @@ const ProjectDetailScreen = () => {
     }, 1000);
   }, [id]);
 
-  const handleCategoryClick = (categoryId) => {
-    setActiveSection(activeSection === categoryId ? null : categoryId);
-    if (!showContractors[categoryId]) {
-      setShowContractors(prev => ({ ...prev, [categoryId]: true }));
+  useEffect(() => {
+    // Загрузка подрядчиков
+    if (activeTag && activeTag.mode === "contractors" && tab === "search") {
+      setContractorLoading(true);
+      setTimeout(() => {
+        setContractors(mockContractors);
+        setContractorLoading(false);
+      }, 1000);
+    }
+  }, [activeTag, tab]);
+
+  useEffect(() => {
+    // Загрузка заявок
+    if (activeTag && activeTag.mode === "contractors" && tab === "requests") {
+      setRequestsLoading(true);
+      setTimeout(() => {
+        setRequests(mockRequests);
+        setRequestsLoading(false);
+      }, 1000);
+    }
+  }, [activeTag, tab]);
+
+  const statusName = (status) => {
+    switch (status) {
+      case "PENDING":
+        return "На рассмотрении";
+      case "APPROVED":
+        return "Одобрены";
+      case "REJECTED":
+        return "Отклонены";
+      case "WAITING_USER":
+        return "Ожидает подтверждения пользователя";
+      case "WAITING_CONTRACTOR":
+        return "Ожидает подтверждения подрядчика";
+      case "INVITE":
+        return "Приглашены";
+      default:
+        return status;
     }
   };
 
-  const sendRequest = async (contractorId, categoryId) => {
-    // ОТКЛЮЧЕНО ДЛЯ ТЕСТИРОВАНИЯ - закомментированный код ниже
-    /*
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/project-contractor/invite`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          projectId: categoryId,
-          contractorId: contractorId,
-        }),
-      });
-
-      if (response.ok) {
-        alert('Заявка успешно отправлена!');
-      } else {
-        alert('Ошибка при отправке заявки');
-      }
-    } catch (error) {
-      console.error('Ошибка отправки заявки:', error);
-      alert('Ошибка сети при отправке заявки');
-    }
-    */
-
-    // ВРЕМЕННАЯ ЛОГИКА ДЛЯ ТЕСТИРОВАНИЯ
+  const sendInvite = async (contractorId) => {
     setTimeout(() => {
       alert('Заявка успешно отправлена!');
     }, 500);
   };
 
-  if (loading) {
+  const approveContractor = async (requestId) => {
+    setTimeout(() => {
+      alert('Подрядчик утвержден!');
+      // Обновляем заявки
+      setRequests(prev => prev.map(req => 
+        req.id === requestId ? { ...req, status: "APPROVED" } : req
+      ));
+    }, 500);
+  };
+
+  if (loading || !project) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Проект не найден</p>
       </div>
     );
   }
@@ -372,13 +211,15 @@ const ProjectDetailScreen = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Project Header */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="mb-4">
-          <h3 className="text-sm text-gray-500 mb-1">Суть работы:</h3>
+        <div className="mb-6">
+          <h3 className="text-sm text-gray-500 mb-1">Название работы</h3>
           <h1 className="text-xl font-semibold text-black mb-4">{project.title}</h1>
-          <p className="text-gray-700 leading-relaxed">{project.description}</p>
+          
+          <h3 className="text-sm text-gray-500 mb-1">Описание работы</h3>
+          <p className="text-gray-700 leading-relaxed mb-6">{project.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Current Object Photos */}
           <div>
             <h3 className="text-sm text-gray-500 mb-3">Объект ремонта сейчас</h3>
@@ -388,14 +229,15 @@ const ProjectDetailScreen = () => {
                   <img
                     src={project.sourceImg[activeImageIndex]}
                     alt="Текущее состояние"
-                    className="w-full h-64 object-cover rounded-lg"
+                    className="w-full h-64 object-cover rounded-lg cursor-pointer"
+                    onClick={() => window.open(project.sourceImg[activeImageIndex], '_blank')}
                   />
                   <div className="flex space-x-2 mt-2">
                     {project.sourceImg.map((img, index) => (
                       <button
                         key={index}
                         onClick={() => setActiveImageIndex(index)}
-                        className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
+                        className={`w-16 h-16 rounded-lg overflow-hidden border-2 hover:border-yellow-400 transition-colors ${
                           activeImageIndex === index ? 'border-yellow-400' : 'border-gray-200'
                         }`}
                       >
@@ -412,91 +254,73 @@ const ProjectDetailScreen = () => {
             </div>
           </div>
 
-          {/* Categories and Tools */}
+          {/* Reference Photos */}
           <div>
-            <h3 className="text-sm text-gray-500 mb-3">Категории работ</h3>
-            <div className="space-y-3">
-              {project.tags?.map((tag) => (
-                <div key={tag.id} className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="font-medium text-black">{tag.category?.action}</span>
+            <h3 className="text-sm text-gray-500 mb-3">Примеры желаемого объекта</h3>
+            <div className="relative">
+              {project.refImg && project.refImg.length > 0 && (
+                <>
+                  <img
+                    src={project.refImg[0]}
+                    alt="Желаемый результат"
+                    className="w-full h-64 object-cover rounded-lg cursor-pointer"
+                    onClick={() => window.open(project.refImg[0], '_blank')}
+                  />
+                  <div className="flex space-x-2 mt-2">
+                    {project.refImg.map((img, index) => (
+                      <div key={index} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 hover:border-yellow-400 transition-colors cursor-pointer">
+                        <img
+                          src={img}
+                          alt={`Референс ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onClick={() => window.open(img, '_blank')}
+                        />
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">Демонтаж</span>
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">Отделка</span>
-                    <span className="text-xs bg-gray-200 px-2 py-1 rounded">Дизайн интерьера</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Materials/Tools Section */}
-            <div className="mt-6">
-              <h4 className="text-sm text-gray-500 mb-2">Товары:</h4>
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600">Плинтуса</div>
-                <div className="text-sm text-gray-600">Шпаклёвка</div>
-                <div className="text-sm text-gray-600">Штукатурка</div>
-                <div className="text-sm text-gray-600">Линолеум</div>
-                <p className="text-xs text-gray-400">Выбрано позиций: 7</p>
-              </div>
-
-              <div className="mt-4">
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div>Диван</div>
-                  <div>Кресло</div>
-                  <div>Стол</div>
-                  <div>Комод</div>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">Выбрано позиций: 7</p>
-              </div>
-
-              <div className="mt-4">
-                <h5 className="text-sm text-gray-500 mb-2">Исполнители:</h5>
-                <div className="space-y-2">
-                  <div className="text-sm text-gray-600">Отделка</div>
-                  <div className="text-sm text-gray-600">Дизайн</div>
-                  <div className="text-sm text-gray-600">Сборка мебели</div>
-                  <div className="text-sm text-gray-600">Покраска</div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Reference Photos */}
-        <div className="mt-8">
-          <h3 className="text-sm text-gray-500 mb-3">Примеры желаемого объекта</h3>
-          <div className="relative">
-            {project.refImg && project.refImg.length > 0 && (
-              <>
-                <img
-                  src={project.refImg[0]}
-                  alt="Желаемый результат"
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                <div className="flex space-x-2 mt-2">
-                  {project.refImg.map((img, index) => (
-                    <div key={index} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
-                      <img
-                        src={img}
-                        alt={`Референс ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Project Description */}
-        <div className="mt-8">
-          <h3 className="text-sm text-gray-500 mb-2">Описание работы</h3>
-          <p className="text-gray-700 leading-relaxed">
-            {project.description}
-          </p>
+        {/* Categories */}
+        <div className="space-y-4">
+          <h3 className="text-sm text-gray-500 mb-3">Категории работ</h3>
+          {project.tags.map((tag, index) => (
+            <div key={index} className="p-4 bg-white rounded-xl border border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-base font-semibold text-black">{tag.category.action}</h4>
+                {tag.hasContractor && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Подрядчик назначен
+                  </span>
+                )}
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    setActiveTag({ ...tag, mode: "description" });
+                    setTab("description");
+                  }}
+                  className="flex-1 py-2 border border-gray-300 rounded-lg text-sm text-black hover:bg-gray-50 transition-colors"
+                >
+                  Подробнее
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTag({ ...tag, mode: "contractors" });
+                    setTab("search");
+                  }}
+                  className="flex-1 py-2 bg-yellow-300 rounded-lg text-sm text-black font-semibold hover:bg-yellow-400 transition-colors"
+                >
+                  {tag.hasContractor ? 'Просмотр подрядчика' : 'Исполнители'}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Project Stats */}
@@ -509,17 +333,233 @@ const ProjectDetailScreen = () => {
             <MessageCircle className="w-4 h-4" />
             <span className="text-sm">{project.comments || 0}</span>
           </div>
-          <div className="ml-auto">
-            <button 
-              onClick={() => alert('Функция будет реализована')}
-              className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
-            >
-              <Send className="w-4 h-4" />
-              <span>Принять заявку</span>
-            </button>
-          </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {activeTag && (
+        <div className="fixed inset-0 flex justify-center items-center px-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold">{activeTag.category.action}</h2>
+              <button onClick={() => setActiveTag(null)} className="hover:bg-gray-100 rounded-full p-1 transition-colors">
+                <X className="w-6 h-6 text-black" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+              {activeTag.mode === "description" ? (
+                <div className="p-6">
+                  <div className="mb-6">
+                    <h3 className="text-sm text-gray-500 mb-2">Описание</h3>
+                    <p className="text-base text-black leading-relaxed">
+                      {activeTag.category_description || "Описание отсутствует"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm text-gray-500 mb-2">Материалы</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {(activeTag.materials || []).map((mat, i) => (
+                        <span
+                          key={i}
+                          className="bg-yellow-200 px-3 py-1 rounded-full text-sm text-black"
+                        >
+                          {mat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : activeTag.hasContractor ? (
+                // Показываем назначенного подрядчика
+                <div className="p-6">
+                  <div className="flex items-start space-x-4 mb-6">
+                    <img
+                      src={activeTag.contractor.profileImg}
+                      alt="Подрядчик"
+                      className="w-20 h-20 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-black mb-2">
+                        {activeTag.contractor.accountName}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {activeTag.contractor.fullDescription}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Телефон: {activeTag.contractor.phone}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => navigate(`/team/${activeTag.contractor.id}`)}
+                      className="flex-1 py-3 bg-gray-200 rounded-lg text-black font-medium hover:bg-gray-300 transition-colors"
+                    >
+                      Подробная информация
+                    </button>
+                    <button
+                      onClick={() => alert('Функция отправки сообщения будет реализована')}
+                      className="flex-1 py-3 bg-black rounded-lg text-white font-medium hover:bg-gray-800 transition-colors"
+                    >
+                      Отправить сообщение
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Показываем поиск подрядчиков и заявки
+                <div className="p-6">
+                  {/* Tabs */}
+                  <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setTab("search")}
+                      className={`flex-1 py-2 text-center rounded-md transition-colors ${
+                        tab === "search" ? "bg-white text-black font-medium shadow-sm" : "text-gray-600"
+                      }`}
+                    >
+                      Поиск
+                    </button>
+                    <button
+                      onClick={() => setTab("requests")}
+                      className={`flex-1 py-2 text-center rounded-md transition-colors ${
+                        tab === "requests" ? "bg-white text-black font-medium shadow-sm" : "text-gray-600"
+                      }`}
+                    >
+                      Заявки
+                    </button>
+                  </div>
+
+                  {tab === "search" && (
+                    <div>
+                      {contractorLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {contractors.map((contractor) => (
+                            <div key={contractor.id} className="bg-yellow-50 rounded-xl p-4">
+                              <div 
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  setActiveTag(null);
+                                  navigate(`/team/${contractor.id}`);
+                                }}
+                              >
+                                <img
+                                  src={contractor.previewImage}
+                                  alt={contractor.fullName}
+                                  className="w-full h-32 object-cover rounded-lg mb-3"
+                                />
+                                <div className="flex items-center space-x-1 mb-2">
+                                  <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                  <span className="text-xs text-gray-600">
+                                    {contractor.rating} ({contractor.reviewCount} отзывов)
+                                  </span>
+                                </div>
+                                <h4 className="font-semibold text-sm mb-2 line-clamp-2">
+                                  {contractor.fullName}
+                                </h4>
+                                <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+                                  {contractor.shortDescription}
+                                </p>
+                              </div>
+                              
+                              <button
+                                onClick={() => sendInvite(contractor.id)}
+                                className="w-full py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                              >
+                                Отправить заявку
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {tab === "requests" && (
+                    <div>
+                      {requestsLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                        </div>
+                      ) : requests.length === 0 ? (
+                        <div className="text-center py-8">
+                          <p className="text-gray-400">Нет заявок</p>
+                        </div>
+                      ) : (
+                        Object.entries(
+                          requests.reduce((acc, req) => {
+                            if (!acc[req.status]) acc[req.status] = [];
+                            acc[req.status].push(req);
+                            return acc;
+                          }, {})
+                        ).map(([status, items]) => (
+                          <div key={status} className="mb-6">
+                            <h3 className="text-base font-bold text-black mb-3">
+                              {statusName(status)}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {items.map((req) => (
+                                <div key={req.id} className="bg-yellow-50 rounded-xl p-4">
+                                  <div 
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                      setActiveTag(null);
+                                      navigate(`/team/${req.contractor.id}`);
+                                    }}
+                                  >
+                                    <img
+                                      src={req.contractor.profileImg}
+                                      alt={req.contractor.userId.accountName}
+                                      className="w-full h-32 object-cover rounded-lg mb-3"
+                                    />
+                                    <h4 className="font-semibold text-sm mb-2">
+                                      {req.contractor.userId.accountName}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 mb-3">
+                                      {req.contractor.shortDescription}
+                                    </p>
+                                  </div>
+
+                                  {req.status === "WAITING_USER" && (
+                                    <button
+                                      onClick={() => approveContractor(req.id)}
+                                      className="w-full py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                                    >
+                                      Подтвердить
+                                    </button>
+                                  )}
+                                  
+                                  {req.status === "APPROVED" && (
+                                    <div className="w-full py-2 bg-green-100 text-green-800 rounded-lg text-sm font-medium text-center">
+                                      Подтвержден
+                                    </div>
+                                  )}
+                                  
+                                  {req.status === "PENDING" && (
+                                    <div className="w-full py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium text-center flex items-center justify-center">
+                                      <Clock className="w-3 h-3 mr-1" />
+                                      Ожидает
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

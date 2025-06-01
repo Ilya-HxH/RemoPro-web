@@ -136,7 +136,7 @@ const HomeScreen = () => {
             </div>
           ))}
           <button
-            onClick={() => navigate('/project/create')}
+            onClick={() => navigate('/project/create/step1')}
             className="flex-shrink-0 w-24 h-24 border-2 border-dashed border-black rounded-lg flex flex-col items-center justify-center text-black hover:bg-gray-50 transition-colors"
           >
             <Plus className="w-6 h-6 mb-1" />

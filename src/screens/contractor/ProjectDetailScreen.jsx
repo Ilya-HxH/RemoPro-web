@@ -154,28 +154,6 @@ const ProjectDetailScreen = ({ projectId = 1 }) => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-yellow-300 rounded-b-3xl px-4 pt-20 pb-4 fixed top-0 left-0 right-0 z-10">
-        <div className="flex items-center justify-between mb-2">
-          <button className="p-1" onClick={() => handleNavigation("back")}>
-            <ArrowLeft className="w-6 h-6 text-black" />
-          </button>
-          <div className="absolute left-0 right-0 flex justify-center z-0">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-black rounded-full mr-2"></div>
-              <span className="font-bold text-black text-xl">RemoPro</span>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <button className="p-1">
-              <Bell className="w-6 h-6 text-black" />
-            </button>
-            <button className="p-1">
-              <User className="w-6 h-6 text-black" />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Content */}
       <div className="pt-40 pb-24">

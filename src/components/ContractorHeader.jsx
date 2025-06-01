@@ -9,7 +9,7 @@ const ContractorHeader = () => {
   const logout = useAuthStore(state => state.logout);
 
   const navItems = [
-    { path: '/home', label: 'Главная', icon: Home },
+    { path: '/contractor/home', label: 'Главная', icon: Home },
     { path: '/contractor/projects', label: 'Проекты / Заявки', icon: Briefcase },
     { path: '/orders', label: 'Каталог', icon: ClipboardList },
     { path: '/contractor/chat', label: 'Чаты', icon: MessageSquare },
@@ -25,8 +25,8 @@ const ContractorHeader = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/home" className="text-xl font-bold text-black">
+          <div className="flex-shrink-0 mr-4">
+            <Link to="/contractor/home" className="text-xl font-bold text-black">
               RemoPro
             </Link>
           </div>
@@ -37,10 +37,10 @@ const ContractorHeader = () => {
               <Link
                 key={path}
                 to={path}
-                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                   location.pathname === path
-                    ? 'bg-black text-white'
-                    : 'text-black hover:bg-black hover:text-white'
+                    ? 'border-b-2 border-black text-black'
+                    : 'text-black hover:border-b-2 hover:border-black'
                 }`}
               >
                 <Icon className="w-4 h-4 mr-2" />
